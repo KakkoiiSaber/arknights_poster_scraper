@@ -6,6 +6,8 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 
 META_CACHE_PATH = Path("cache/meta_cache.json")
@@ -52,10 +54,39 @@ def filename_from_title(title: str, url: str, index: int, total: int) -> tuple[s
     return base_title, ext
 
 
-def download_image(url: str, destination: Path) -> None:
-    resp = requests.get(url, timeout=30)
-    resp.raise_for_status()
-    destination.write_bytes(resp.content)
+def build_session() -> requests.Session:
+    session = requests.Session()
+    retry = Retry(
+        total=5,
+        backoff_factor=1,
+        status_forcelist=(429, 500, 502, 503, 504),
+        allowed_methods={"GET"},
+    )
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount("http://", adapter)
+    session.mount("https://", adapter)
+    session.headers.update({"User-Agent": "arknights-poster-updater/1.0"})
+    return session
+
+
+def download_image(url: str, destination: Path, session: requests.Session, retries: int = 3) -> None:
+    temp_path = destination.with_suffix(destination.suffix + ".part")
+
+    for attempt in range(1, retries + 1):
+        try:
+            with session.get(url, timeout=30, stream=True) as resp:
+                resp.raise_for_status()
+                with temp_path.open("wb") as file:
+                    for chunk in resp.iter_content(chunk_size=65536):
+                        if chunk:
+                            file.write(chunk)
+            temp_path.replace(destination)
+            return
+        except Exception as exc:  # noqa: BLE001
+            temp_path.unlink(missing_ok=True)
+            if attempt == retries:
+                raise
+            print(f"Retry {attempt}/{retries} for {url} after error: {exc}")
 
 
 def choose_filename(
@@ -98,6 +129,7 @@ def main() -> None:
     renamed = 0
 
     ASSETS_DIR.mkdir(parents=True, exist_ok=True)
+    session = build_session()
 
     for poster in posters:
         images = poster.get("images", [])
@@ -140,7 +172,7 @@ def main() -> None:
 
             destination = ASSETS_DIR / target_filename
             try:
-                download_image(url, destination)
+                download_image(url, destination, session=session)
             except Exception as exc:  # noqa: BLE001
                 print(f"Failed to download {url}: {exc}")
                 continue
