@@ -69,8 +69,15 @@ def build_session() -> requests.Session:
     return session
 
 
-def download_image(url: str, destination: Path, session: requests.Session, retries: int = 3) -> None:
+def download_image(
+    url: str,
+    destination: Path,
+    session: requests.Session,
+    retries: int = 3,
+    label: str | None = None,
+) -> None:
     temp_path = destination.with_suffix(destination.suffix + ".part")
+    label_text = f" ({label})" if label else ""
 
     for attempt in range(1, retries + 1):
         try:
@@ -86,7 +93,7 @@ def download_image(url: str, destination: Path, session: requests.Session, retri
             temp_path.unlink(missing_ok=True)
             if attempt == retries:
                 raise
-            print(f"Retry {attempt}/{retries} for {url} after error: {exc}")
+            print(f"Retry {attempt}/{retries} for {url}{label_text} after error: {exc}")
 
 
 def choose_filename(
@@ -172,9 +179,10 @@ def main() -> None:
 
             destination = ASSETS_DIR / target_filename
             try:
-                download_image(url, destination, session=session)
+                download_image(url, destination, session=session, label=title or target_filename)
             except Exception as exc:  # noqa: BLE001
-                print(f"Failed to download {url}: {exc}")
+                context = title or target_filename
+                print(f"Failed to download {url} for {context}: {exc}")
                 continue
 
             image_cache[target_filename] = url

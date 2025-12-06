@@ -17,6 +17,12 @@ RAW_URL = (
 META_CACHE_PATH = Path("cache/meta_cache.json")
 
 
+def normalize_wiki_value(value: Any) -> str:
+    """Unescape common wiki placeholders like `{{=}}` and trim whitespace."""
+    text = str(value)
+    return text.replace("{{=}}", "=").replace("{{!}}", "|").strip()
+
+
 def fetch_wikitext(url: str) -> str:
     """Download the raw wikitext for the page."""
     resp = requests.get(url, timeout=20)
@@ -29,7 +35,7 @@ def parse_link_field(raw_link: str) -> tuple[str, str]:
     Convert a wiki link field like `[https://... label]` into (url, label).
     The label is treated as the poster name.
     """
-    cleaned = raw_link.strip().strip("[]")
+    cleaned = normalize_wiki_value(raw_link).strip("[]")
     if not cleaned:
         return "", ""
     if " " in cleaned:
@@ -76,7 +82,7 @@ def extract_posters(wikitext: str) -> list[dict[str, Any]]:
         for param in template.params:
             name = str(param.name).strip()
             if name.isdigit() and int(name) >= 3:
-                url = str(param.value).strip()
+                url = normalize_wiki_value(param.value)
                 if url:
                     image_urls.append(url)
 
