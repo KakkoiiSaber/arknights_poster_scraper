@@ -41,6 +41,14 @@ jobs:
       - name: Download images
         run: python src/get_image.py
 
+      - name: Summarize categories
+        run: python src/get_category.py
+
+      - name: Sync caches into docs for site
+        run: |
+          mkdir -p docs/cache
+          cp cache/meta_cache.json cache/image_cache.json cache/category_cache.json docs/cache/
+
       - name: Check for changes
         id: git_status
         run: |
