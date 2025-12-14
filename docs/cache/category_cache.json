@@ -1,6 +1,6 @@
 {
   "source": "cache/meta_cache.json",
-  "total_items": 310,
+  "total_items": 311,
   "total_categories": 8,
   "categories": [
     {
@@ -25,7 +25,7 @@
     },
     {
       "name": "直播预告宣传图",
-      "count": 21
+      "count": 22
     },
     {
       "name": "数据达成贺图",
