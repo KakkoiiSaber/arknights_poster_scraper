@@ -1,11 +1,11 @@
 {
   "source": "cache/meta_cache.json",
-  "total_items": 311,
+  "total_items": 312,
   "total_categories": 8,
   "categories": [
     {
       "name": "活动宣传图",
-      "count": 92
+      "count": 93
     },
     {
       "name": "节日及节气贺图",
