@@ -33,6 +33,47 @@ function truncate(text, maxLen) {
   return text.length > maxLen ? text.slice(0, maxLen - 1) + "…" : text;
 }
 
+function parsePosterDate(title) {
+  if (!title) return null;
+  const match = title.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (!match) return null;
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+
+  if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) {
+    return null;
+  }
+
+  const monthStr = String(month).padStart(2, "0");
+  const dayStr = String(day).padStart(2, "0");
+
+  return {
+    key: year * 10000 + month * 100 + day,
+    label: `${year}-${monthStr}-${dayStr}`
+  };
+}
+
+function buildCategoryLastUpdated(posters) {
+  const latestMap = new Map();
+
+  posters.forEach((poster) => {
+    const category = poster.category;
+    if (!category) return;
+
+    const parsed = parsePosterDate(poster.title || "");
+    if (!parsed) return;
+
+    const existing = latestMap.get(category);
+    if (!existing || parsed.key > existing.key) {
+      latestMap.set(category, parsed);
+    }
+  });
+
+  return latestMap;
+}
+
 // Find the local filename associated with an external image URL
 function findImageKey(imageCache, externalUrl) {
   for (const [key, value] of Object.entries(imageCache)) {
@@ -70,12 +111,19 @@ async function initHomePage() {
   const errorEl = document.getElementById("home-error");
 
   try {
-    const categoryData = await fetchJSON("cache/category_cache.json");
+    const [categoryData, metaData] = await Promise.all([
+      fetchJSON("cache/category_cache.json"),
+      fetchJSON("cache/meta_cache.json")
+    ]);
     const categories = categoryData.categories || [];
+    const posters = metaData?.posters || [];
+    const latestByCategory = buildCategoryLastUpdated(posters);
 
     listEl.innerHTML = "";
 
     categories.forEach((cat) => {
+      const latest = latestByCategory.get(cat.name);
+      const latestLabel = latest ? latest.label : "未知";
       const card = document.createElement("a");
       card.className = "category-card";
       card.href = `category.html?category=${encodeURIComponent(cat.name)}`;
@@ -83,9 +131,9 @@ async function initHomePage() {
       card.innerHTML = `
         <div class="category-name">${cat.name}</div>
         <div class="category-count">${cat.count} 张图片</div>
+        <div class="category-updated">最近更新：${latestLabel}</div>
         <div class="category-pill-row">
           <span class="category-pill">点击查看相册</span>
-          <span class="category-pill">自动生成</span>
         </div>
       `;
       listEl.appendChild(card);

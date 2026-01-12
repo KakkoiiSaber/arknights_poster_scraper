@@ -264,6 +264,12 @@ a:hover {
   color: var(--text-muted);
 }
 
+.category-updated {
+  margin-top: 4px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
 .category-pill-row {
   display: flex;
   flex-wrap: wrap;
