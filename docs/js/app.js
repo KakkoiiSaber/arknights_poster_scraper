@@ -55,7 +55,7 @@ function parsePosterDate(title) {
   };
 }
 
-function buildCategoryLastUpdated(posters) {
+function buildCategoryLatestPoster(posters) {
   const latestMap = new Map();
 
   posters.forEach((poster) => {
@@ -67,7 +67,7 @@ function buildCategoryLastUpdated(posters) {
 
     const existing = latestMap.get(category);
     if (!existing || parsed.key > existing.key) {
-      latestMap.set(category, parsed);
+      latestMap.set(category, { ...parsed, poster });
     }
   });
 
@@ -111,22 +111,33 @@ async function initHomePage() {
   const errorEl = document.getElementById("home-error");
 
   try {
-    const [categoryData, metaData] = await Promise.all([
+    const [categoryData, metaData, imageCache] = await Promise.all([
       fetchJSON("cache/category_cache.json"),
-      fetchJSON("cache/meta_cache.json")
+      fetchJSON("cache/meta_cache.json"),
+      fetchJSON("cache/image_cache.json")
     ]);
     const categories = categoryData.categories || [];
     const posters = metaData?.posters || [];
-    const latestByCategory = buildCategoryLastUpdated(posters);
+    const latestByCategory = buildCategoryLatestPoster(posters);
 
     listEl.innerHTML = "";
 
     categories.forEach((cat) => {
       const latest = latestByCategory.get(cat.name);
       const latestLabel = latest ? latest.label : "未知";
+      const externalUrl = latest?.poster?.images?.[0] || "";
+      const key = externalUrl ? findImageKey(imageCache, externalUrl) : null;
+      const encodedKey = key ? encodeURIComponent(key) : null;
+      const imageUrl = encodedKey
+        ? `${CONFIG.siteBaseUrl}/${CONFIG.imageBasePath}/${encodedKey}`
+        : externalUrl;
+
       const card = document.createElement("a");
       card.className = "category-card";
       card.href = `category.html?category=${encodeURIComponent(cat.name)}`;
+      if (imageUrl) {
+        card.style.setProperty("--category-hover-image", `url("${imageUrl}")`);
+      }
 
       card.innerHTML = `
         <div class="category-name">${cat.name}</div>

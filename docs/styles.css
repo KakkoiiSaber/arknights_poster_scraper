@@ -241,7 +241,22 @@ a:hover {
     transparent 55%
   );
   opacity: 0;
+  z-index: 1;
+  pointer-events: none;
   transition: opacity var(--transition-med);
+}
+
+.category-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--category-hover-image, none);
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  z-index: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-med), transform var(--transition-med);
 }
 
 .category-card:hover {
@@ -251,7 +266,27 @@ a:hover {
 }
 
 .category-card:hover::before {
+  opacity: 0;
+}
+
+.category-card:hover::after {
   opacity: 1;
+  transform: scale(1.02);
+}
+
+.category-card:focus-visible::after {
+  opacity: 0.4;
+  transform: scale(1.02);
+}
+
+.category-card > * {
+  position: relative;
+  z-index: 2;
+  transition: opacity var(--transition-med);
+}
+
+.category-card:hover > * {
+  opacity: 0;
 }
 
 .category-name {
