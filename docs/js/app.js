@@ -82,13 +82,24 @@ function findImageKey(imageCache, externalUrl) {
   return null;
 }
 
-function makeButton(label, href, className = "btn") {
+function makeButton(label, href, className = "btn", icon = null) {
   const btn = document.createElement("a");
   btn.className = className;
   btn.href = href;
   btn.target = "_blank";
   btn.rel = "noopener noreferrer";
-  btn.textContent = label;
+  if (icon && icon.src) {
+    const iconImg = document.createElement("img");
+    iconImg.className = "btn-icon";
+    iconImg.src = icon.src;
+    iconImg.alt = icon.alt || "";
+    if (!icon.alt) iconImg.setAttribute("aria-hidden", "true");
+    btn.appendChild(iconImg);
+  }
+
+  const labelSpan = document.createElement("span");
+  labelSpan.textContent = label;
+  btn.appendChild(labelSpan);
   return btn;
 }
 
@@ -323,10 +334,18 @@ async function initDetailPage() {
 
     if (weiboUrl)
     //   buttonRow.appendChild(makeButton("在微博查看", weiboUrl, "btn btn-primary"));
-      buttonRow.appendChild(makeButton("在微博查看", weiboUrl, "btn"));
+      buttonRow.appendChild(
+        makeButton("在微博查看", weiboUrl, "btn", {
+          src: "icon/weibo.png"
+        })
+      );
 
     if (rawUrl)
-      buttonRow.appendChild(makeButton("下载高清原图", rawUrl, "btn"));
+      buttonRow.appendChild(
+        makeButton("下载高清原图", rawUrl, "btn", {
+          src: "icon/download.png"
+        })
+      );
 
     // buttonRow.appendChild(
     //   makeButton("查看 GitHub 代码", CONFIG.githubRepoUrl, "btn")
