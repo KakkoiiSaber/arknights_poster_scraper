@@ -193,6 +193,14 @@ a:hover {
     border-color var(--transition-fast);
 }
 
+.btn-icon {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
 .btn-primary {
   background: radial-gradient(circle at top left, #7ed0ff, #3c7dff);
   border-color: rgba(149, 214, 255, 0.6);

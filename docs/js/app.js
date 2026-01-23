@@ -92,6 +92,8 @@ function makeButton(label, href, className = "btn", icon = null) {
     const iconImg = document.createElement("img");
     iconImg.className = "btn-icon";
     iconImg.src = icon.src;
+    iconImg.width = 16;
+    iconImg.height = 16;
     iconImg.alt = icon.alt || "";
     if (!icon.alt) iconImg.setAttribute("aria-hidden", "true");
     btn.appendChild(iconImg);
