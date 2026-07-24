@@ -1,7 +1,7 @@
 {
   "source": "cache/meta_cache.json",
-  "total_items": 348,
-  "total_categories": 8,
+  "total_items": 356,
+  "total_categories": 9,
   "categories": [
     {
       "name": "活动宣传图",
@@ -9,7 +9,7 @@
     },
     {
       "name": "节日及节气贺图",
-      "count": 79
+      "count": 86
     },
     {
       "name": "时装宣传图",
@@ -34,6 +34,10 @@
     {
       "name": "其他贺图",
       "count": 3
+    },
+    {
+      "name": "音律联觉",
+      "count": 1
     }
   ]
 }
