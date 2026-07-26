@@ -1,6 +1,6 @@
 {
   "source": "cache/meta_cache.json",
-  "total_items": 356,
+  "total_items": 370,
   "total_categories": 9,
   "categories": [
     {
@@ -32,12 +32,12 @@
       "count": 18
     },
     {
-      "name": "其他贺图",
-      "count": 3
+      "name": "线下活动壁纸",
+      "count": 15
     },
     {
-      "name": "音律联觉",
-      "count": 1
+      "name": "其他贺图",
+      "count": 3
     }
   ]
 }
