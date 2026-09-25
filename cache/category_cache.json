@@ -1,6 +1,6 @@
 {
   "source": "cache/meta_cache.json",
-  "total_items": 376,
+  "total_items": 377,
   "total_categories": 9,
   "categories": [
     {
@@ -37,7 +37,7 @@
     },
     {
       "name": "其他贺图",
-      "count": 3
+      "count": 4
     }
   ]
 }
